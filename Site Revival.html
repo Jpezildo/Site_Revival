@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Revival — Célula Universitária</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --blue-deep:   #071c46;
+    --blue-primary:#0f3f9e;
+    --blue-bright: #1f6fe0;
+    --coral:       #ff6b4a;
+    --coral-dark:  #e8542f;
+    --gold:        #ffc93c;
+    --cyan:        #5be3ec;
+    --cream:       #fdf9ef;
+    --ink:         #08214f;
+    --ink-soft:    #3a4d78;
+
+    --font-display: "Baloo 2", system-ui, sans-serif;
+    --font-body: "Manrope", system-ui, sans-serif;
+  }
+
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  html{ overflow-x:hidden; }
+  body{
+    font-family:var(--font-body);
+    background:var(--cream);
+    color:var(--ink);
+  }
+  img{max-width:100%;display:block;}
+  a{color:inherit;text-decoration:none;}
+  .container{
+    width:100%;
+    max-width:1080px;
+    margin:0 auto;
+    padding:0 24px;
+  }
+  section{position:relative;}
+
+  /* ---------- decorative bubbles reused across the page ---------- */
+  .bubble{
+    position:absolute;
+    border-radius:50%;
+    background:rgba(255,255,255,0.5);
+    pointer-events:none;
+  }
+
+  /* ---------- QUICK NAV (sticky, acompanha a rolagem) ---------- */
+  .quicknav{
+    position:sticky;
+    top:16px;
+    z-index:50;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding:8px;
+    border-radius:100px;
+    background:rgba(7,28,70,.55);
+    backdrop-filter:blur(10px);
+    -webkit-backdrop-filter:blur(10px);
+    border:1px solid rgba(255,255,255,.18);
+    box-shadow:0 10px 30px rgba(0,0,0,.25);
+  }
+  .hero-nav-slot{
+    margin-top:36px;
+    display:flex;
+    justify-content:center;
+  }
+  .quicknav a,
+  .quicknav button{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:7px;
+    padding:9px 14px;
+    border-radius:100px;
+    font-family:var(--font-body);
+    font-weight:700;
+    font-size:.82rem;
+    line-height:1;
+    color:#fff;
+    white-space:nowrap;
+    text-decoration:none;
+    border:0;
+    appearance:none;
+    -webkit-appearance:none;
+    background:transparent;
+    cursor:pointer;
+    transition:background .18s ease, transform .18s ease;
+  }
+  .quicknav a svg,
+  .quicknav button svg{width:16px;height:16px;flex:none;}
+  .quicknav a.qn-insta:hover{background:linear-gradient(135deg,#ff6b4a,#ffc93c);transform:translateY(-2px);}
+  .quicknav button.qn-whats:hover{background:#25d366;transform:translateY(-2px);}
+  .quicknav a.qn-encontros{background:rgba(255,255,255,.12);}
+  .quicknav a.qn-encontros:hover{background:rgba(255,255,255,.24);transform:translateY(-2px);}
+  .quicknav a:focus-visible,
+  .quicknav button:focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
+  .quicknav .qn-label{display:none;}
+  @media (min-width:560px){ .quicknav .qn-label{display:inline;} }
+
+  /* ---------- HERO ---------- */
+  .hero{
+    min-height:100svh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding:110px 24px 140px;
+    background:
+      radial-gradient(120% 90% at 50% -10%, #2f7fe8 0%, transparent 55%),
+      linear-gradient(180deg, var(--blue-bright) 0%, var(--blue-primary) 42%, var(--blue-deep) 100%);
+  }
+
+  .rays{
+    position:absolute;
+    inset:0;
+    z-index:0;
+    opacity:.55;
+    background:
+      conic-gradient(from 200deg at 50% 0%,
+        transparent 0deg, rgba(255,255,255,.16) 8deg, transparent 20deg,
+        transparent 60deg, rgba(255,255,255,.10) 68deg, transparent 82deg,
+        transparent 140deg, rgba(255,255,255,.14) 150deg, transparent 165deg,
+        transparent 230deg, rgba(255,255,255,.10) 240deg, transparent 255deg);
+    animation:swirl 34s linear infinite;
+  }
+  @keyframes swirl{ to{ transform:rotate(360deg); } }
+
+  /* ---------- swimming fish band (animated version only) ---------- */
+  .fishband{
+    position:absolute;
+    top:0;left:0;right:0;
+    height:120px;
+    z-index:1;
+    overflow:hidden;
+    pointer-events:none;
+  }
+  .swimfish{
+    position:absolute;
+    opacity:.85;
+    filter:drop-shadow(0 4px 8px rgba(0,0,0,.2));
+  }
+  .swim-right{ animation-name:swim-right; animation-timing-function:ease-in-out; animation-iteration-count:infinite; }
+  .swim-left{ animation-name:swim-left; animation-timing-function:ease-in-out; animation-iteration-count:infinite; }
+  @keyframes swim-right{
+    0%{ transform:translateX(-10vw) translateY(0) scaleX(1); }
+    50%{ transform:translateX(55vw) translateY(-10px) scaleX(1); }
+    50.01%{ transform:translateX(55vw) translateY(-10px) scaleX(-1); }
+    100%{ transform:translateX(110vw) translateY(0) scaleX(-1); }
+  }
+  @keyframes swim-left{
+    0%{ transform:translateX(110vw) translateY(0) scaleX(-1); }
+    50%{ transform:translateX(45vw) translateY(-12px) scaleX(-1); }
+    50.01%{ transform:translateX(45vw) translateY(-12px) scaleX(1); }
+    100%{ transform:translateX(-10vw) translateY(0) scaleX(1); }
+  }
+
+  .hero-content{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;}
+
+  .hero-logo{
+    width:min(70vw, 340px);
+    height:auto;
+    object-fit:contain;
+    filter:drop-shadow(0 18px 40px rgba(0,0,0,.35));
+    animation:float 6s ease-in-out infinite;
+  }
+  @keyframes float{
+    0%,100%{transform:translateY(0);}
+    50%{transform:translateY(-10px);}
+  }
+
+  /* ---------- wordmark textual (sem imagem de logo) ---------- */
+  .hero-wordmark{
+    position:relative;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    animation:float 6s ease-in-out infinite;
+  }
+  .wordmark-fish{
+    width:clamp(52px, 9vw, 78px);
+    margin-bottom:2px;
+    filter:drop-shadow(0 6px 12px rgba(0,0,0,.2));
+  }
+  .wordmark-text{
+    font-family:var(--font-display);
+    font-weight:800;
+    font-size:clamp(3.2rem, 12vw, 6rem);
+    line-height:.85;
+    color:#fdf9ef;
+    letter-spacing:.01em;
+    text-shadow:0 10px 30px rgba(3,15,45,.35);
+    margin:0;
+  }
+  .wm-dot{
+    position:absolute;
+    border-radius:50%;
+    background:rgba(255,255,255,.55);
+  }
+
+  .hero-eyebrow{
+    margin-top:28px;
+    font-family:var(--font-display);
+    font-weight:600;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    font-size:.85rem;
+    color:var(--gold);
+  }
+
+  .hero-tagline{
+    margin-top:14px;
+    max-width:520px;
+    color:rgba(255,255,255,.92);
+    font-size:1.08rem;
+    line-height:1.6;
+  }
+
+  .hero-cta{
+    margin-top:38px;
+    display:flex;
+    gap:16px;
+    flex-wrap:wrap;
+    justify-content:center;
+  }
+
+  .btn{
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    font-family:var(--font-body);
+    font-weight:700;
+    font-size:.98rem;
+    padding:14px 26px;
+    border-radius:100px;
+    border:2px solid transparent;
+    transition:transform .18s ease, box-shadow .18s ease, background .18s ease;
+    cursor:pointer;
+  }
+  .btn:hover{transform:translateY(-3px);}
+  .btn:focus-visible{outline:3px solid var(--gold); outline-offset:3px;}
+  .btn svg{width:20px;height:20px;flex:none;}
+
+  .btn-insta{
+    background:linear-gradient(135deg,#ff6b4a,#ffc93c 60%, #ff6b4a);
+    background-size:180% 180%;
+    color:#3a1200;
+    box-shadow:0 10px 26px rgba(255,107,74,.35);
+  }
+  .btn-insta:hover{background-position:100% 0;box-shadow:0 14px 32px rgba(255,107,74,.5);}
+
+  .btn-whats{
+    background:rgba(255,255,255,.08);
+    color:#fff;
+    border-color:rgba(255,255,255,.55);
+    backdrop-filter:blur(4px);
+  }
+  .btn-whats:hover{background:rgba(255,255,255,.18);border-color:#fff;}
+
+  .btn-top{
+    background:rgba(255,255,255,.1);
+    color:#fff;
+    border-color:rgba(255,255,255,.4);
+    backdrop-filter:blur(4px);
+    font-family:var(--font-body);
+  }
+  .btn-top:hover{background:rgba(255,255,255,.2);border-color:#fff;}
+
+  .scroll-hint{
+    position:absolute;
+    left:50%;
+    bottom:34px;
+    z-index:2;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    width:42px;
+    height:42px;
+    border-radius:50%;
+    border:none;
+    color:var(--blue-deep);
+    background:var(--gold);
+    box-shadow:0 8px 20px rgba(0,0,0,.25);
+    transform:translateX(-50%);
+    opacity:1;
+    visibility:visible;
+    pointer-events:auto;
+    animation:bounce 2.2s ease-in-out infinite;
+    transition:opacity .25s ease, visibility .25s ease, background .2s ease;
+  }
+  .scroll-hint:hover{
+    background:#ffd766;
+  }
+  .scroll-hint.is-hidden{
+    opacity:0;
+    visibility:hidden;
+    pointer-events:none;
+  }
+  .scroll-hint:focus-visible{
+    outline:3px solid var(--gold);
+    outline-offset:3px;
+  }
+  @keyframes bounce{
+    0%,100%{transform:translateX(-50%) translateY(0);}
+    50%{transform:translateX(-50%) translateY(8px);}
+  }
+
+  .wave{
+    position:absolute;
+    left:0;right:0;bottom:-2px;
+    line-height:0;
+    z-index:1;
+  }
+  .wave svg{width:100%;height:auto;display:block;}
+
+  /* ---------- WHATSAPP MODAL ---------- */
+  .whatsapp-modal{
+    position:fixed;
+    inset:0;
+    z-index:200;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+    background:rgba(3,15,45,.68);
+    backdrop-filter:blur(7px);
+    -webkit-backdrop-filter:blur(7px);
+    opacity:0;
+    visibility:hidden;
+    pointer-events:none;
+    transition:opacity .25s ease, visibility .25s ease;
+  }
+  .whatsapp-modal.open{
+    opacity:1;
+    visibility:visible;
+    pointer-events:auto;
+  }
+  .whatsapp-modal-box{
+    position:relative;
+    width:min(100%, 420px);
+    padding:34px 28px 26px;
+    border-radius:28px;
+    background:var(--cream);
+    color:var(--ink);
+    box-shadow:0 25px 70px rgba(0,0,0,.35);
+    text-align:center;
+    transform:translateY(18px) scale(.97);
+    transition:transform .25s ease;
+  }
+  .whatsapp-modal.open .whatsapp-modal-box{
+    transform:translateY(0) scale(1);
+  }
+  .whatsapp-modal-box h2{
+    font-family:var(--font-display);
+    font-size:clamp(1.7rem,5vw,2.1rem);
+    line-height:1.1;
+    margin-bottom:9px;
+  }
+  .whatsapp-modal-box > p{
+    color:var(--ink-soft);
+    line-height:1.55;
+    margin-bottom:22px;
+  }
+  .whatsapp-options{
+    display:grid;
+    gap:12px;
+  }
+  .whatsapp-option{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    min-height:54px;
+    padding:14px 18px;
+    border-radius:16px;
+    font-family:var(--font-body);
+    font-weight:800;
+    text-decoration:none;
+    transition:transform .18s ease, box-shadow .18s ease;
+  }
+  .whatsapp-option:hover{
+    transform:translateY(-2px);
+  }
+  .whatsapp-option.manha{
+    background:linear-gradient(135deg,#ffc93c,#ff9a4a);
+    color:#3a1200;
+    box-shadow:0 8px 20px rgba(255,154,74,.22);
+  }
+  .whatsapp-option.noite{
+    background:linear-gradient(135deg,#1f6fe0,#0f3f9e);
+    color:#fff;
+    box-shadow:0 8px 20px rgba(15,63,158,.22);
+  }
+  .whatsapp-option:focus-visible,
+  .whatsapp-close:focus-visible{
+    outline:3px solid var(--gold);
+    outline-offset:3px;
+  }
+  .whatsapp-close{
+    margin-top:18px;
+    padding:8px 12px;
+    border:0;
+    background:transparent;
+    color:var(--ink-soft);
+    font-family:var(--font-body);
+    font-weight:700;
+    cursor:pointer;
+  }
+  .whatsapp-close:hover{color:var(--ink);}
+  body.modal-open{overflow:hidden;}
+
+  /* ---------- QUEM SOMOS / OBJETIVO ---------- */
+  .identity{
+    padding:100px 0 70px;
+    background:var(--cream);
+  }
+
+  .cards{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:28px;
+  }
+  @media (max-width:760px){ .cards{grid-template-columns:1fr;} }
+
+  .card{
+    position:relative;
+    background:#fff;
+    border-radius:28px;
+    padding:38px 34px 34px;
+    box-shadow:0 20px 44px rgba(15,63,158,.08);
+    border:1px solid rgba(15,63,158,.06);
+  }
+  .card::before{
+    content:"";
+    position:absolute;
+    top:0;left:34px;right:34px;
+    height:6px;
+    border-radius:0 0 6px 6px;
+  }
+  .card.somos::before{ background:linear-gradient(90deg,var(--blue-bright),var(--cyan)); }
+  .card.objetivo::before{ background:linear-gradient(90deg,var(--coral),var(--gold)); }
+
+  .card .fish-icon{width:34px;height:34px;margin-bottom:18px;}
+  .card h3{
+    font-family:var(--font-display);
+    font-size:1.5rem;
+    margin-bottom:14px;
+    color:var(--ink);
+  }
+  .card p{
+    color:var(--ink-soft);
+    line-height:1.75;
+    font-size:1rem;
+  }
+  .verse-toggle{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    margin-top:18px;
+    font-family:var(--font-body);
+    font-size:.85rem;
+    font-weight:700;
+    letter-spacing:.03em;
+    color:var(--blue-primary);
+    background:none;
+    border:none;
+    padding:0;
+    cursor:pointer;
+    border-bottom:1px dashed currentColor;
+    line-height:1.4;
+  }
+  .verse-toggle svg{
+    width:13px;height:13px;flex:none;
+    transition:transform .2s ease;
+  }
+  .verse-toggle[aria-expanded="true"] svg{ transform:rotate(180deg); }
+  .card.objetivo .verse-toggle{color:var(--coral-dark);}
+
+  .verse-box{
+    display:grid;
+    grid-template-rows:0fr;
+    transition:grid-template-rows .32s ease;
+  }
+  .verse-box.open{ grid-template-rows:1fr; }
+  .verse-box > div{
+    overflow:hidden;
+  }
+  .verse-box p{
+    margin-top:14px;
+    padding:14px 16px;
+    background:rgba(15,63,158,.06);
+    border-left:3px solid var(--blue-bright);
+    border-radius:8px;
+    font-size:.92rem;
+    line-height:1.65;
+    font-style:italic;
+    color:var(--ink-soft);
+  }
+  .card.objetivo .verse-box p{ border-left-color:var(--coral); }
+
+  .invite-line{
+    max-width:560px;
+    margin:60px auto 0;
+    text-align:center;
+    font-family:var(--font-display);
+    font-size:clamp(1.2rem,2.6vw,1.5rem);
+    color:var(--blue-primary);
+    line-height:1.5;
+  }
+
+  /* ---------- ENCONTROS ---------- */
+  .encontros{
+    padding:90px 0 110px;
+    background:
+      radial-gradient(90% 60% at 50% 0%, rgba(255,201,60,.15), transparent 60%),
+      linear-gradient(180deg,#eef4ff 0%, #dfe9fb 100%);
+  }
+  .encontros-head{text-align:center;max-width:600px;margin:0 auto 50px;}
+  .encontros-head .kicker{
+    font-family:var(--font-display);
+    color:var(--blue-primary);
+    text-transform:uppercase;
+    letter-spacing:.14em;
+    font-size:.8rem;
+    font-weight:700;
+  }
+  .encontros-head h2{
+    font-family:var(--font-display);
+    font-size:clamp(1.9rem,4vw,2.6rem);
+    margin-top:10px;
+    color:var(--ink);
+  }
+
+  .schedule-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:28px;
+  }
+  @media (max-width:760px){ .schedule-grid{grid-template-columns:1fr;} }
+
+  .schedule-card{
+    border-radius:28px;
+    padding:34px 30px;
+    color:#fff;
+    position:relative;
+    overflow:hidden;
+    box-shadow:0 24px 50px rgba(7,28,70,.18);
+  }
+  .schedule-card.manha{ background:linear-gradient(160deg,#ffc93c 0%, #ff9a4a 60%, #ff6b4a 100%); color:#3a1200; }
+  .schedule-card.noite{ background:linear-gradient(160deg,#1f6fe0 0%, #0f3f9e 55%, #071c46 100%); }
+
+  .schedule-card .icon{
+    width:46px;height:46px;
+    margin-bottom:16px;
+  }
+  .schedule-card h3{
+    font-family:var(--font-display);
+    font-size:1.4rem;
+    margin-bottom:18px;
+  }
+  .meet{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    padding:14px 0;
+    border-top:1px solid rgba(255,255,255,.28);
+    gap:12px;
+  }
+  .schedule-card.manha .meet{border-top-color:rgba(58,18,0,.18);}
+  .meet:last-child{padding-bottom:0;}
+  .meet .day{font-weight:700;font-size:1.02rem;}
+  .meet .time{font-size:.92rem;opacity:.92;font-weight:600;white-space:nowrap;}
+
+  /* ---------- CTA FINAL ---------- */
+  .cta-final{
+    padding:110px 24px 100px;
+    text-align:center;
+    background:
+      radial-gradient(120% 90% at 50% -10%, #2f7fe8 0%, transparent 55%),
+      linear-gradient(180deg, var(--blue-primary) 0%, var(--blue-deep) 60%, #051230 100%);
+    color:#fff;
+    position:relative;
+    overflow:hidden;
+  }
+  .cta-final .fish-icon{
+    width:60px;height:60px;
+    margin:0 auto 22px;
+    opacity:.95;
+  }
+  .cta-final h2{
+    font-family:var(--font-display);
+    font-size:clamp(1.8rem,4vw,2.4rem);
+    max-width:560px;
+    margin:0 auto 16px;
+  }
+  .cta-final .verse-final{
+    display:block;
+    color:var(--gold);
+    font-family:var(--font-body);
+    font-weight:700;
+    font-size:.95rem;
+    letter-spacing:.03em;
+    margin:0 auto 14px;
+  }
+  /* Lucas 14:15 — o próprio texto é o botão */
+  .verse-final{
+    display:block;
+    color:var(--gold);
+    font-family:var(--font-body);
+    font-weight:700;
+    font-size:.95rem;
+    letter-spacing:.03em;
+    margin:0 auto 14px;
+  }
+  .verse-final-trigger{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    margin:0 0 0 4px;
+    padding:7px 12px;
+    border:1px solid rgba(255,255,255,.2);
+    border-radius:999px;
+    background:rgba(255,255,255,.08);
+    color:var(--gold);
+    font:inherit;
+    cursor:pointer;
+    transition:background .2s ease, transform .2s ease, border-color .2s ease;
+  }
+  .verse-final-trigger:hover{
+    background:rgba(255,255,255,.15);
+    border-color:rgba(255,255,255,.35);
+    transform:translateY(-1px);
+  }
+  .verse-final-trigger svg{
+    width:13px;
+    height:13px;
+    transition:transform .2s ease;
+  }
+  .verse-final-trigger[aria-expanded="true"] svg{
+    transform:rotate(180deg);
+  }
+  .verse-box-final p{
+    background:rgba(255,255,255,.1);
+    border-left-color:var(--gold);
+    color:rgba(255,255,255,.9);
+  }
+
+  footer{
+    padding:26px 24px;
+    text-align:center;
+    background:var(--blue-deep);
+    color:rgba(255,255,255,.55);
+    font-size:.82rem;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .rays{animation:none;}
+    .hero-logo{animation:none;}
+    .hero-wordmark{animation:none;}
+    .btn{transition:none;}
+    .scroll-hint{animation:none;}
+    .swimfish{animation:none !important;}
+  }
+  * {
+    box-sizing: border-box; 
+  }
+
+  html,
+  body {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+}
+</style>
+</head>
+<body>
+
+<!-- ============ HERO ============ -->
+<section class="hero" id="topo">
+  <div class="rays" aria-hidden="true"></div>
+
+  <div class="fishband" aria-hidden="true">
+    <div class="swimfish swim-right" style="top:14%; width:34px; animation-duration:13s; animation-delay:-0s;"><svg viewBox="0 0 64 40" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M40 4c10 0 18 8 20 16-2 8-10 16-20 16-8 0-14-5-18-10L4 32l4-12-4-12 18 6c4-5 10-10 18-10z" fill="#fdf9ef"/><circle cx="46" cy="19" r="3.4" fill="#0f3f9e"/></svg></div>
+    <div class="swimfish swim-left" style="top:34%; width:26px; animation-duration:17s; animation-delay:-3s;"><svg viewBox="0 0 64 40" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M40 4c10 0 18 8 20 16-2 8-10 16-20 16-8 0-14-5-18-10L4 32l4-12-4-12 18 6c4-5 10-10 18-10z" fill="#ffc93c"/><circle cx="46" cy="19" r="3.4" fill="#0f3f9e"/></svg></div>
+    <div class="swimfish swim-right" style="top:55%; width:30px; animation-duration:15s; animation-delay:-1.5s;"><svg viewBox="0 0 64 40" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M40 4c10 0 18 8 20 16-2 8-10 16-20 16-8 0-14-5-18-10L4 32l4-12-4-12 18 6c4-5 10-10 18-10z" fill="#5be3ec"/><circle cx="46" cy="19" r="3.4" fill="#0f3f9e"/></svg></div>
+    <div class="swimfish swim-left" style="top:75%; width:22px; animation-duration:20s; animation-delay:-6s;"><svg viewBox="0 0 64 40" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M40 4c10 0 18 8 20 16-2 8-10 16-20 16-8 0-14-5-18-10L4 32l4-12-4-12 18 6c4-5 10-10 18-10z" fill="#fdf9ef"/><circle cx="46" cy="19" r="3.4" fill="#0f3f9e"/></svg></div>
+    <div class="swimfish swim-right" style="top:24%; width:20px; animation-duration:22s; animation-delay:-9s;"><svg viewBox="0 0 64 40" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M40 4c10 0 18 8 20 16-2 8-10 16-20 16-8 0-14-5-18-10L4 32l4-12-4-12 18 6c4-5 10-10 18-10z" fill="#ffc93c"/><circle cx="46" cy="19" r="3.4" fill="#0f3f9e"/></svg></div>
+  </div>
+
+  <!-- bubbles -->
+  <div class="bubble" style="width:10px;height:10px;top:18%;left:14%;"></div>
+  <div class="bubble" style="width:6px;height:6px;top:30%;left:22%;"></div>
+  <div class="bubble" style="width:14px;height:14px;top:70%;left:10%;"></div>
+  <div class="bubble" style="width:8px;height:8px;top:60%;right:12%;"></div>
+  <div class="bubble" style="width:16px;height:16px;top:22%;right:16%;"></div>
+  <div class="bubble" style="width:6px;height:6px;top:80%;right:22%;"></div>
+
+  <div class="hero-content">
+    <div class="hero-wordmark" aria-label="Revival">
+      <svg class="wordmark-fish" viewBox="0 0 64 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M40 4c10 0 18 8 20 16-2 8-10 16-20 16-8 0-14-5-18-10L4 32l4-12-4-12 18 6c4-5 10-10 18-10z" fill="#fdf9ef"/>
+        <circle cx="46" cy="19" r="3.4" fill="#0f3f9e"/>
+      </svg>
+      <div class="wm-dot" style="width:6px;height:6px;top:2px;left:6px;"></div>
+      <div class="wm-dot" style="width:9px;height:9px;top:14px;left:-6px;"></div>
+      <div class="wm-dot" style="width:5px;height:5px;top:20px;right:2px;"></div>
+      <h1 class="wordmark-text">Revival</h1>
+    </div>
+    <p class="hero-eyebrow">Grupo universitário</p>
+    <p class="hero-tagline">Fé racional, bíblica e avivada dentro e fora da faculdade.</p>
+
+    <div class="hero-nav-slot">
+    <nav class="hero-nav quicknav" id="heroNav" aria-label="Acesso rápido">
+      <a class="qn-insta" href="https://www.instagram.com/revival_iesb?utm_source=ig_web_button_share_sheet&igsi=ZDNlZDc0MzIxNw==" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+        <span class="qn-label">Instagram</span>
+      </a>
+      <button class="qn-whats" type="button" onclick="openWhatsAppModal()" aria-haspopup="dialog" aria-controls="whatsappModal">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.87.52 3.63 1.42 5.13L2 22l5.12-1.53a9.86 9.86 0 0 0 4.92 1.31h.01c5.46 0 9.9-4.45 9.9-9.91 0-2.65-1.03-5.13-2.9-7C17.18 3.02 14.7 2 12.04 2zm0 18.06h-.01a8.14 8.14 0 0 1-4.15-1.13l-.3-.18-3.04.91.91-2.97-.19-.3a8.12 8.12 0 0 1-1.25-4.34c0-4.5 3.66-8.16 8.17-8.16 2.18 0 4.23.85 5.77 2.39a8.1 8.1 0 0 1 2.39 5.77c0 4.51-3.67 8.17-8.3 8.01zm4.48-6.13c-.25-.12-1.46-.72-1.68-.8-.23-.08-.39-.12-.56.13-.16.24-.64.8-.79.96-.14.16-.29.18-.54.06-.25-.12-1.04-.38-1.99-1.22-.73-.65-1.23-1.46-1.37-1.7-.14-.25-.02-.38.11-.5.11-.11.25-.29.37-.43.13-.14.17-.25.25-.4.08-.16.04-.3-.02-.42-.06-.12-.56-1.34-.77-1.84-.2-.48-.4-.42-.56-.43h-.48c-.16 0-.42.06-.64.3-.22.25-.85.83-.85 2.03s.87 2.37 1 2.53c.12.16 1.71 2.6 4.14 3.65.58.25 1.03.4 1.38.51.58.18 1.11.16 1.53.1.47-.07 1.46-.6 1.66-1.17.21-.58.21-1.08.15-1.18-.06-.1-.23-.16-.48-.28z"/></svg>
+        <span class="qn-label">WhatsApp</span>
+      </button>
+      <a class="qn-encontros" href="#encontros">
+        <span class="qn-label">Encontros</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M8 2v4M16 2v4M3 10h18"/></svg>
+      </a>
+    </nav>
+    </div>
+  </div>
+
+  <a class="scroll-hint" href="#encontros" aria-label="Ver mais abaixo">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+  </a>
+
+  <div class="wave" aria-hidden="true">
+    <svg viewBox="0 0 1440 110" preserveAspectRatio="none">
+      <path d="M0,64 C240,110 480,10 720,40 C960,70 1200,110 1440,56 L1440,110 L0,110 Z" fill="#fdf9ef"/>
+    </svg>
+  </div>
+</section>
+
+<!-- ============ WHATSAPP MODAL ============ -->
+<div class="whatsapp-modal" id="whatsappModal" role="dialog" aria-modal="true" aria-labelledby="whatsappModalTitle" aria-hidden="true">
+  <div class="whatsapp-modal-box" role="document">
+    <h2 id="whatsappModalTitle">De qual grupo você deseja participar?</h2>
+
+
+    <div class="whatsapp-options">
+      <!-- Substitua os href abaixo pelos links reais dos grupos. -->
+      <a class="whatsapp-option manha" href="https://chat.whatsapp.com/E8iSx2C7VgHLHZ3M5UoHAw" target="_blank" rel="noopener">☀️ Grupo da manhã</a>
+      <a class="whatsapp-option noite" href="https://chat.whatsapp.com/F5LmN4Yolgw4CYl8diguhn" target="_blank" rel="noopener">🌙 Grupo da noite</a>
+    </div>
+
+    <button class="whatsapp-close" type="button" onclick="closeWhatsAppModal()">Fechar</button>
+  </div>
+</div>
+
+<!-- ============ QUEM SOMOS / OBJETIVO ============ -->
+<section class="identity">
+  <div class="container">
+    <div class="cards">
+      <div class="card somos">
+        <svg class="fish-icon" viewBox="0 0 64 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M40 4c10 0 18 8 20 16-2 8-10 16-20 16-8 0-14-5-18-10L4 32l4-12-4-12 18 6c4-5 10-10 18-10z" fill="#0f3f9e"/>
+          <circle cx="46" cy="19" r="3.4" fill="#fdf9ef"/>
+        </svg>
+        <h3>Quem somos?</h3>
+        <p>Somos um grupo de universitários apaixonados por Jesus que acredita que a fé também deve ser vivida e expressa nos ambientes acadêmicos: uma fé racional, bíblica e avivada.</p>
+        <button class="verse-toggle" aria-expanded="false" aria-controls="verse-joao" onclick="toggleVerse(this,'verse-joao')">
+          João 17:21–23
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div class="verse-box" id="verse-joao"><div><p>“Para que todos sejam um, Pai, como Tu estás em mim e Eu em Ti. Que eles também estejam em nós, para que o mundo creia que Tu me enviaste. Eu lhes tenho transferido a glória que me tens dado, para que sejam um, como nós o somos: Eu neles e Tu em mim, a fim de que sejam aperfeiçoados na unidade, para que o mundo conheça que Tu me enviaste e os amaste, como também amaste a mim.”</p></div></div>
+      </div>
+
+      <div class="card objetivo">
+        <svg class="fish-icon" viewBox="0 0 64 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M40 4c10 0 18 8 20 16-2 8-10 16-20 16-8 0-14-5-18-10L4 32l4-12-4-12 18 6c4-5 10-10 18-10z" fill="#ff6b4a"/>
+          <circle cx="46" cy="19" r="3.4" fill="#fdf9ef"/>
+        </svg>
+        <h3>Nosso objetivo</h3>
+        <p>Viver nossa fé juntos, construir relacionamentos que apontem para Cristo e torná-Lo conhecido dentro e fora da faculdade.</p>
+        <button class="verse-toggle" aria-expanded="false" aria-controls="verse-romanos" onclick="toggleVerse(this,'verse-romanos')">
+          Romanos 10:14–15
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div class="verse-box" id="verse-romanos"><div><p>“No entanto, como invocarão aquele em quem não creram? E como crerão naquele de quem nada ouviram falar? E como ouvirão, se não há quem pregue? E como pregarão, se não forem enviados? Como está escrito: ‘Como são maravilhosos os pés dos que anunciam boas novas!’”</p></div></div>
+      </div>
+    </div>
+
+    <p class="invite-line">Venha fazer parte de tudo que Deus tem feito no nosso meio 🔥</p>
+    <div style="text-align:center;">
+      <button class="verse-toggle" aria-expanded="false" aria-controls="verse-levitico" onclick="toggleVerse(this,'verse-levitico')" style="margin-top:6px;">
+        Levítico 6:13
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div class="verse-box" id="verse-levitico" style="max-width:520px;margin:0 auto;"><div><p>“O fogo arderá continuamente sobre o altar; jamais deverá ser apagado.”</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ENCONTROS ============ -->
+<section class="encontros" id="encontros">
+  <div class="container">
+    <div class="encontros-head">
+      <h2>Nossos encontros</h2>
+    </div>
+
+    <div class="schedule-grid">
+      <div class="schedule-card manha">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="#3a1200" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg>
+        <h3>Encontros da manhã</h3>
+        <div class="meet">
+          <span class="day">Quarta-feira</span>
+          <span class="time">11h10 às 12h</span>
+        </div>
+        <div class="meet">
+          <span class="day">Sexta-feira · intervalo</span>
+          <span class="time">9h30 às 10h</span>
+        </div>
+      </div>
+
+      <div class="schedule-card noite">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="#fdf9ef" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+        <h3>Encontros da noite</h3>
+        <div class="meet">
+          <span class="day">Quarta-feira · intervalo</span>
+          <span class="time">20h30 às 21h</span>
+        </div>
+        <div class="meet">
+          <span class="day">Sexta-feira · intervalo</span>
+          <span class="time">20h30 às 21h</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CTA FINAL ============ -->
+<section class="cta-final">
+  <div class="rays" aria-hidden="true"></div>
+  <div class="fishband" aria-hidden="true">
+    <div class="swimfish swim-left" style="top:10%; width:26px; animation-duration:16s; animation-delay:-2s;"><svg viewBox="0 0 64 40" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M40 4c10 0 18 8 20 16-2 8-10 16-20 16-8 0-14-5-18-10L4 32l4-12-4-12 18 6c4-5 10-10 18-10z" fill="#5be3ec"/><circle cx="46" cy="19" r="3.4" fill="#071c46"/></svg></div>
+    <div class="swimfish swim-right" style="top:26%; width:20px; animation-duration:19s; animation-delay:-7s;"><svg viewBox="0 0 64 40" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M40 4c10 0 18 8 20 16-2 8-10 16-20 16-8 0-14-5-18-10L4 32l4-12-4-12 18 6c4-5 10-10 18-10z" fill="#fdf9ef"/><circle cx="46" cy="19" r="3.4" fill="#071c46"/></svg></div>
+    <div class="swimfish swim-left" style="top:6%; width:30px; animation-duration:14s; animation-delay:-4.5s;"><svg viewBox="0 0 64 40" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M40 4c10 0 18 8 20 16-2 8-10 16-20 16-8 0-14-5-18-10L4 32l4-12-4-12 18 6c4-5 10-10 18-10z" fill="#ffc93c"/><circle cx="46" cy="19" r="3.4" fill="#071c46"/></svg></div>
+  </div>
+
+  <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;">
+    <svg class="fish-icon" viewBox="0 0 64 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M40 4c10 0 18 8 20 16-2 8-10 16-20 16-8 0-14-5-18-10L4 32l4-12-4-12 18 6c4-5 10-10 18-10z" fill="#ffc93c"/>
+      <circle cx="46" cy="19" r="3.4" fill="#071c46"/>
+    </svg>
+    <h2>Venha para o Revival!!</h2>
+    <span class="verse-final">
+      Há espaço para todos na mesa do Senhor
+      <button class="verse-final-trigger" type="button" aria-expanded="false" aria-controls="verse-lucas" onclick="toggleVerse(this,'verse-lucas')">
+        Lucas 14:15
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+    </span>
+    <div class="verse-box verse-box-final" id="verse-lucas"><div><p>“Ora, ao ouvir tais ensinos, um dos que estavam reclinados ao redor da mesa, enunciou: ‘Feliz será aquele que partilhar do pão no banquete do Reino de Deus!’”</p></div></div>
+
+    <div class="hero-cta" style="margin-top:32px;">
+      <button class="btn btn-top" onclick="scrollToTop()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+        Voltar ao topo
+      </button>
+    </div>
+  </div>
+</section>
+
+<footer>
+  Revival 🐟
+</footer>
+
+<script>
+  function toggleVerse(btn, id) {
+    var box = document.getElementById(id);
+    var isOpen = box.classList.contains('open');
+    box.classList.toggle('open', !isOpen);
+    btn.setAttribute('aria-expanded', String(!isOpen));
+  }
+
+  function scrollToTop() {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // ---------- SCROLL HINT ----------
+  var scrollHint = document.querySelector('.scroll-hint');
+  var lastScrollY = window.scrollY;
+
+  function updateScrollHint() {
+    var currentScrollY = window.scrollY;
+
+    if (currentScrollY <= 10) {
+      scrollHint.classList.remove('is-hidden');
+    } else if (currentScrollY > lastScrollY) {
+      scrollHint.classList.add('is-hidden');
+    } else if (currentScrollY < lastScrollY) {
+      scrollHint.classList.remove('is-hidden');
+    }
+
+    lastScrollY = currentScrollY;
+  }
+
+  window.addEventListener('scroll', updateScrollHint, { passive: true });
+
+  // ---------- WHATSAPP MODAL ----------
+  var whatsappModal = document.getElementById('whatsappModal');
+  var whatsappTrigger = document.querySelector('.qn-whats');
+  var whatsappClose = whatsappModal.querySelector('.whatsapp-close');
+
+  function openWhatsAppModal() {
+    whatsappModal.classList.add('open');
+    whatsappModal.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('modal-open');
+    whatsappClose.focus();
+  }
+
+  function closeWhatsAppModal() {
+    whatsappModal.classList.remove('open');
+    whatsappModal.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('modal-open');
+    if (whatsappTrigger) whatsappTrigger.focus();
+  }
+
+  whatsappModal.addEventListener('click', function(event) {
+    if (event.target === whatsappModal) {
+      closeWhatsAppModal();
+    }
+  });
+
+  document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape' && whatsappModal.classList.contains('open')) {
+      closeWhatsAppModal();
+    }
+  });
+</script>
+</body>
+</html>
